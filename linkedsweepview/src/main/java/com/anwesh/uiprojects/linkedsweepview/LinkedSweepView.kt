@@ -9,6 +9,10 @@ import android.view.View
 import android.view.MotionEvent
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.PointF
+import android.graphics.RectF
+
+val SWEEP_NODES : Int = 5
 
 class LinkedSweepView(ctx : Context) : View(ctx) {
 
@@ -73,5 +77,64 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
                 animated = false
             }
         }
+    }
+
+    data class SweepNode(var i : Int, val state : State = State()) {
+
+        private var next : SweepNode? = null
+
+        private var prev : SweepNode? = null
+
+        fun update(stopcb : (Float) -> Unit) {
+            state.update(stopcb)
+        }
+
+        fun startUpdating(startcb : () -> Unit) {
+            state.startUpdating(startcb)
+        }
+
+        fun draw(canvas : Canvas, paint : Paint) {
+            val getDeg : (Int) -> Float = {i -> 180f + 180f * state.scale}
+            canvas.drawWithGap(i) {canvas, gap ->
+                canvas.drawSemiPie(0f, 0f, gap/2, getDeg(1), getDeg(0), paint)
+            }
+        }
+
+        init {
+            addNeighbor()
+        }
+
+        fun addNeighbor() {
+            if (i < SWEEP_NODES) {
+                next = SweepNode(i + 1)
+                next?.prev = this
+            }
+        }
+
+    }
+}
+
+fun Canvas.getSize() : PointF {
+    return PointF(width.toFloat(), height.toFloat())
+}
+
+fun Canvas.drawSemiPie(x : Float, y : Float, r : Float, start : Float, end : Float, paint : Paint) {
+    save()
+    translate(x, y)
+    drawArc(RectF(-r, -r, r, r), start, (end - start), true, paint)
+    restore()
+}
+
+fun Canvas.drawAtPoint(x : Float, y : Float, cb : (Canvas) -> Unit) {
+    save()
+    translate(x, y)
+    cb(this)
+    restore()
+}
+
+fun Canvas.drawWithGap(i : Int, cb : (Canvas, Float) -> Unit) {
+    val gap : Float = getSize().x / SWEEP_NODES
+    drawAtPoint(i * gap + gap / 2, getSize().y / 2) {
+        cb(it, gap)
     }
 }
