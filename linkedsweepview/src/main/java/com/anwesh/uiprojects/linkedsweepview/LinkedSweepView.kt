@@ -4,6 +4,7 @@ package com.anwesh.uiprojects.linkedsweepview
  * Created by anweshmishra on 01/07/18.
  */
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.*
 import android.view.View
@@ -175,6 +176,14 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
             linkedSweep.startUpdating {
                 animator.start()
             }
+        }
+    }
+
+    companion object {
+        fun create(activity : Activity) : LinkedSweepView {
+            val view : LinkedSweepView = LinkedSweepView(activity)
+            activity.setContentView(view)
+            return view
         }
     }
 }
