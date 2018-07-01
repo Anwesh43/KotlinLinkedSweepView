@@ -5,12 +5,9 @@ package com.anwesh.uiprojects.linkedsweepview
  */
 
 import android.content.Context
+import android.graphics.*
 import android.view.View
 import android.view.MotionEvent
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PointF
-import android.graphics.RectF
 
 val SWEEP_NODES : Int = 5
 
@@ -152,6 +149,30 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
 
         fun startUpdating(startcb : () -> Unit) {
             curr.startUpdating(startcb)
+        }
+    }
+
+    data class Renderer(var view : LinkedSweepView) {
+
+        private val animator : Animator = Animator(view)
+
+        private val linkedSweep : LinkedSweep = LinkedSweep(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(Color.parseColor("#212121"))
+            paint.color = Color.parseColor("#F57F17")
+            linkedSweep.draw(canvas, paint)
+            animator.animate {
+                linkedSweep.update {
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            linkedSweep.startUpdating {
+                animator.start()
+            }
         }
     }
 }
