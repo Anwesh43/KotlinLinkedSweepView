@@ -111,7 +111,7 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
         }
 
         fun addNeighbor() {
-            if (i < SWEEP_NODES) {
+            if (i < SWEEP_NODES - 1) {
                 next = SweepNode(i + 1)
                 next?.prev = this
             }
@@ -120,7 +120,7 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
         fun getNext(dir : Int, cb : () -> Unit)  : SweepNode {
             var curr : SweepNode? = prev
             if (dir == 1) {
-                curr = prev
+                curr = next
             }
             if (curr != null) {
                 return curr
