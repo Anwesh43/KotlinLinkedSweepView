@@ -117,6 +117,18 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
             }
         }
 
+        fun getNext(dir : Int, cb : () -> Unit)  : SweepNode {
+            var curr : SweepNode? = prev
+            if (dir == 1) {
+                curr = prev
+            }
+            if (curr != null) {
+                return curr
+            }
+            cb()
+            return this
+        }
+
     }
 
     data class LinkedSweep(var i : Int) {
@@ -130,7 +142,12 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
         }
 
         fun update(stopcb : (Float) -> Unit) {
-            curr.update(stopcb)
+            curr.update {
+                curr = curr.getNext(dir) {
+                    dir *= -1
+                }
+                stopcb(it)
+            }
         }
 
         fun startUpdating(startcb : () -> Unit) {
