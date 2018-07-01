@@ -100,7 +100,7 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
         }
 
         fun draw(canvas : Canvas, paint : Paint) {
-            val getDeg : (Int) -> Float = {i -> 180f + 180f * state.scale}
+            val getDeg : (Int) -> Float = {i -> 180f + 180f * state.scales[i]}
             canvas.drawWithGap(i) {canvas, gap ->
                 canvas.drawSemiPie(0f, 0f, gap/2, getDeg(1), getDeg(0), paint)
             }
