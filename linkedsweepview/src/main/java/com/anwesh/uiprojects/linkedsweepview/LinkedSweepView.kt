@@ -18,8 +18,14 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
 
     private val renderer : Renderer = Renderer(this)
 
+    var completionListener : CompletionListener? = null
+
     override fun onDraw(canvas : Canvas) {
         renderer.render(canvas, paint)
+    }
+
+    fun addCompletionListener(onComplete : (Int) -> Unit) {
+        completionListener = CompletionListener(onComplete)
     }
 
     override fun onTouchEvent(event : MotionEvent) : Boolean {
@@ -91,8 +97,10 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
 
         private var prev : SweepNode? = null
 
-        fun update(stopcb : (Float) -> Unit) {
-            state.update(stopcb)
+        fun update(stopcb : (Int, Float) -> Unit) {
+            state.update {
+                stopcb(i, it)
+            }
         }
 
         fun startUpdating(startcb : () -> Unit) {
@@ -141,12 +149,12 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
             curr.draw(canvas, paint)
         }
 
-        fun update(stopcb : (Float) -> Unit) {
-            curr.update {
+        fun update(stopcb : (Int, Float) -> Unit) {
+            curr.update {j , scale ->
                 curr = curr.getNext(dir) {
                     dir *= -1
                 }
-                stopcb(it)
+                stopcb(j, scale)
             }
         }
 
@@ -166,8 +174,11 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
             paint.color = Color.parseColor("#F57F17")
             linkedSweep.draw(canvas, paint)
             animator.animate {
-                linkedSweep.update {
+                linkedSweep.update {j, scale ->
                     animator.stop()
+                    when(scale) {
+                        1f -> view.completionListener?.onComplete?.invoke(j)
+                    }
                 }
             }
         }
@@ -186,6 +197,8 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
             return view
         }
     }
+
+    data class CompletionListener(var onComplete : (Int) -> Unit)
 }
 
 fun Canvas.getSize() : PointF {
