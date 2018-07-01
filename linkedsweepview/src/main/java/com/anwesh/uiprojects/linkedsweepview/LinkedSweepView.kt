@@ -118,6 +118,25 @@ class LinkedSweepView(ctx : Context) : View(ctx) {
         }
 
     }
+
+    data class LinkedSweep(var i : Int) {
+
+        private var curr : SweepNode = SweepNode(0)
+
+        private var dir : Int = 1
+
+        fun draw(canvas : Canvas, paint : Paint) {
+            curr.draw(canvas, paint)
+        }
+
+        fun update(stopcb : (Float) -> Unit) {
+            curr.update(stopcb)
+        }
+
+        fun startUpdating(startcb : () -> Unit) {
+            curr.startUpdating(startcb)
+        }
+    }
 }
 
 fun Canvas.getSize() : PointF {
